@@ -56,8 +56,8 @@ class _CityCardState extends State<CityCard> {
             borderRadius: BorderRadius.circular(20),
           ),
           child: Container(
-            width: MediaQuery.of(context).size.width * 0.75, // 3/4 of screen width
-            height: MediaQuery.of(context).size.height * 0.67, // 2/3 of screen height
+            width: MediaQuery.of(context).size.width * 0.75,
+            height: MediaQuery.of(context).size.height * 0.67,
             color: Colors.cyan.shade500,
             child: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -97,7 +97,6 @@ class _CityCardState extends State<CityCard> {
     );
   }
 
-  // Helper function to format sunrise/sunset times to HH:mm
   String formatTime(int timestamp) {
     var date = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
     return '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
