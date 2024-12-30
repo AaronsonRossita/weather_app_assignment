@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:weather_app_assignment/weather_model.dart';
+import 'city_weather_details.dart';
 import 'enum.dart';
 
 class CityCard extends StatefulWidget {
@@ -106,7 +107,15 @@ class _CityCardState extends State<CityCard> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        _showCityDialog(context);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CityWeatherDetails(
+              weatherData: widget.weatherData,
+              onDelete: widget.onDelete,
+            ),
+          ),
+        );
       },
       child: Padding(
         padding: const EdgeInsets.all(8.0),

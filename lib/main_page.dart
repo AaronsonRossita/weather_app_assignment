@@ -43,6 +43,7 @@ class _MainPageState extends State<MainPage> {
   }
 
   Future<void> initializeWeatherData() async {
+    isLoading = true;
     final data =
         await Future.wait(cities.map((city) => fetchWeatherForCity(city)));
     setState(() {
@@ -52,9 +53,9 @@ class _MainPageState extends State<MainPage> {
   }
 
   addCity(String cityName) async {
+    isLoading = true;
     if (cityName.isNotEmpty) {
       if (!cities.contains(cityName)) {
-        isLoading = true;
         try {
           final weather = await fetchWeatherForCity(cityName);
           setState(() {

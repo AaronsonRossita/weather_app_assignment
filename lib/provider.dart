@@ -14,7 +14,7 @@ Future<WeatherModel> fetchWeatherForCity(String city) async {
   final url = Uri.parse('$baseUrl?q=$city&appid=$apiKey&units=metric');
 
   try {
-    final response = await http.get(url);  // Make a GET request
+    final response = await http.get(url);
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);

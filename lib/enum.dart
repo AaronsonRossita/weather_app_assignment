@@ -80,55 +80,55 @@ extension WeatherConditionIcon on WeatherCondition {
         return Icon(
           Icons.thunderstorm,
           color: Colors.blueGrey.shade300,
-          size: iconSize * 2,
+          size: iconSize * 3,
         );
       case WeatherCondition.drizzle:
         return Icon(
           Icons.grain,
           color: Colors.lightBlue,
-          size: iconSize * 2,
+          size: iconSize * 3,
         );
       case WeatherCondition.rain:
         return Icon(
           Icons.water_drop,
           color: Colors.blue,
-          size: iconSize * 2,
+          size: iconSize * 3,
         );
       case WeatherCondition.snow:
         return Icon(
           Icons.ac_unit,
           color: Colors.white,
-          size: iconSize * 2,
+          size: iconSize * 3,
         );
       case WeatherCondition.atmosphere:
         return Icon(
           Icons.foggy,
           color: Colors.grey.shade600,
-          size: iconSize * 2,
+          size: iconSize * 3,
         );
       case WeatherCondition.clear:
         return Icon(
           Icons.wb_sunny,
           color: Colors.yellow,
-          size: iconSize * 2,
+          size: iconSize * 3,
         );
       case WeatherCondition.clouds:
         return Icon(
           Icons.cloud,
           color: Colors.blueGrey.shade300,
-          size: iconSize * 2,
+          size: iconSize * 3,
         );
       case WeatherCondition.extreme:
         return Icon(
           Icons.warning,
           color: Colors.red,
-          size: iconSize * 2,
+          size: iconSize * 3,
         );
       case WeatherCondition.additional:
         return Icon(
           Icons.air,
           color: Colors.green,
-          size: iconSize * 2,
+          size: iconSize * 3,
         );
     }
   }
