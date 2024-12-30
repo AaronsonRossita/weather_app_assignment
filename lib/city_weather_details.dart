@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:weather_app_assignment/enum.dart';
 import 'package:weather_app_assignment/weather_model.dart';
+import 'package:weather_app_assignment/enums/weather_condition_enum.dart';
 
 class CityWeatherDetails extends StatelessWidget {
   final WeatherModel weatherData;
   final Function(String) onDelete;
+  final bool isHebrew;
 
   const CityWeatherDetails({
     super.key,
     required this.weatherData,
     required this.onDelete,
+    required this.isHebrew,
   });
 
   TextStyle titleTextStyle() {
@@ -37,11 +39,50 @@ class CityWeatherDetails extends StatelessWidget {
     return '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
   }
 
+  String translate(String key) {
+    if (isHebrew) {
+      switch (key) {
+        case 'Remove City':
+          return 'הסר עיר';
+        case 'Temperature':
+          return 'חום';
+        case 'Feels Like':
+          return 'מרגיש כמו';
+        case 'Min Temp':
+          return 'מינימום טמפ';
+        case 'Max Temp':
+          return 'מקסימום טמפ';
+        case 'Humidity':
+          return 'לחות';
+        case 'Pressure':
+          return 'לחץ';
+        case 'Wind Speed':
+          return 'מהירות רוח';
+        case 'Wind Direction':
+          return 'כיוון רוח';
+        case 'Description':
+          return 'תיאור';
+        case 'Sunrise':
+          return 'זריחה';
+        case 'Sunset':
+          return 'שקיעה';
+        default:
+          return key;
+      }
+    } else {
+      return key;
+    }
+  }
+
+  String getCityName() {
+    return isHebrew ? weatherData.cityNameHebrew : weatherData.cityNameEnglish;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(weatherData.cityName, style: titleTextStyle()),
+        title: Text(getCityName(), style: titleTextStyle()),
         centerTitle: true,
         backgroundColor: Colors.deepPurple.shade200,
       ),
@@ -53,36 +94,36 @@ class CityWeatherDetails extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text('Temperature: ${tempToString(weatherData.temperature)}',
+              Text('${translate('Temperature')}: ${tempToString(weatherData.temperature)}',
                   style: regularTextStyle()),
               weatherData.weatherCondition.largeIcon,
-              Text('Feels Like: ${tempToString(weatherData.feelsLike)}',
+              Text('${translate('Feels Like')}: ${tempToString(weatherData.feelsLike)}',
                   style: regularTextStyle()),
-              Text('Min Temp: ${tempToString(weatherData.tempMin)}',
+              Text('${translate('Min Temp')}: ${tempToString(weatherData.tempMin)}',
                   style: regularTextStyle()),
-              Text('Max Temp: ${tempToString(weatherData.tempMax)}',
+              Text('${translate('Max Temp')}: ${tempToString(weatherData.tempMax)}',
                   style: regularTextStyle()),
-              Text('Humidity: ${weatherData.humidity}%',
+              Text('${translate('Humidity')}: ${weatherData.humidity}%',
                   style: regularTextStyle()),
-              Text('Pressure: ${weatherData.pressure} hPa',
+              Text('${translate('Pressure')}: ${weatherData.pressure} hPa',
                   style: regularTextStyle()),
-              Text('Wind Speed: ${weatherData.windSpeed} m/s',
+              Text('${translate('Wind Speed')}: ${weatherData.windSpeed} m/s',
                   style: regularTextStyle()),
-              Text('Wind Direction: ${weatherData.windDegree}°',
+              Text('${translate('Wind Direction')}: ${weatherData.windDegree}°',
                   style: regularTextStyle()),
-              Text('Description: ${weatherData.description}',
+              Text('${translate('Description')}: ${weatherData.description}',
                   style: regularTextStyle()),
-              Text('Sunrise: ${formatTime(weatherData.sunrise)}',
+              Text('${translate('Sunrise')}: ${formatTime(weatherData.sunrise)}',
                   style: regularTextStyle()),
-              Text('Sunset: ${formatTime(weatherData.sunset)}',
+              Text('${translate('Sunset')}: ${formatTime(weatherData.sunset)}',
                   style: regularTextStyle()),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
-                  onDelete(weatherData.cityName);
+                  onDelete(weatherData.cityNameEnglish);
                   Navigator.pop(context);
                 },
-                child: const Text('Remove City'),
+                child: Text(translate('Remove City')),
               ),
             ],
           ),

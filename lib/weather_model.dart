@@ -1,7 +1,11 @@
-import 'enum.dart';
+import 'package:weather_app_assignment/provider.dart';
+
+import 'enums/language_enum.dart';
+import 'enums/weather_condition_enum.dart';
 
 class WeatherModel {
-  final String cityName;
+  final String cityNameEnglish;
+  final String cityNameHebrew;
   final double temperature;
   final double feelsLike;
   final double tempMin;
@@ -17,7 +21,8 @@ class WeatherModel {
   final WeatherCondition weatherCondition;
 
   WeatherModel({
-    required this.cityName,
+    required this.cityNameEnglish,
+    required this.cityNameHebrew,
     required this.temperature,
     required this.feelsLike,
     required this.tempMin,
@@ -32,9 +37,23 @@ class WeatherModel {
     required this.weatherConditionId,
   }) : weatherCondition = getWeatherCondition(weatherConditionId);
 
-  factory WeatherModel.fromJSON(Map<String, dynamic> json) {
+  static Future<WeatherModel> fromJSON(Map<String, dynamic> json, Language language) async {
+    String cityNameEnglish = '';
+    String cityNameHebrew = '';
+
+    if (language == Language.hebrew) {
+      cityNameHebrew = json['name'];
+      final response = await fetchWeatherForCity(cityNameHebrew, Language.english.languageCode);
+      cityNameEnglish = response.cityNameEnglish;
+    } else {
+      cityNameEnglish = json['name'];
+      final response = await fetchWeatherForCity(cityNameEnglish, Language.hebrew.languageCode);
+      cityNameHebrew = response.cityNameHebrew;
+    }
+
     return WeatherModel(
-      cityName: json['name'],
+      cityNameEnglish: cityNameEnglish,
+      cityNameHebrew: cityNameHebrew,
       temperature: json['main']['temp'].toDouble(),
       feelsLike: json['main']['feels_like'].toDouble(),
       tempMin: json['main']['temp_min'].toDouble(),
@@ -52,6 +71,6 @@ class WeatherModel {
 
   @override
   String toString() {
-    return 'WeatherModel(cityName: $cityName, temperature: $temperature, feelsLike: $feelsLike, tempMin: $tempMin, tempMax: $tempMax, humidity: $humidity, pressure: $pressure, windSpeed: $windSpeed, windDegree: $windDegree, description: $description, sunrise: $sunrise, sunset: $sunset, weatherConditionId: $weatherConditionId, weatherCondition: $weatherCondition)';
+    return 'WeatherModel(cityNameEnglish: $cityNameEnglish, cityNameHebrew: $cityNameHebrew, temperature: $temperature, feelsLike: $feelsLike, tempMin: $tempMin, tempMax: $tempMax, humidity: $humidity, pressure: $pressure, windSpeed: $windSpeed, windDegree: $windDegree, description: $description, sunrise: $sunrise, sunset: $sunset, weatherConditionId: $weatherConditionId, weatherCondition: $weatherCondition)';
   }
 }

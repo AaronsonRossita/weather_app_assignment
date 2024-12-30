@@ -1,25 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:weather_app_assignment/weather_model.dart';
 import 'city_weather_details.dart';
-import 'enum.dart';
+import 'enums/enums.dart';
 
-class CityCard extends StatefulWidget {
-  const CityCard(
-      {super.key,
-        required this.weatherData,
-        required this.onDelete});
+class CityCard extends StatelessWidget {
+  const CityCard({
+    super.key,
+    required this.weatherData,
+    required this.onDelete,
+    required this.currentLanguage,
+  });
 
   final WeatherModel weatherData;
   final Function(String) onDelete;
+  final Language currentLanguage;
 
-  @override
-  State<CityCard> createState() => _CityCardState();
-}
-
-class _CityCardState extends State<CityCard> {
-  @override
-  initState() {
-    super.initState();
+  String getCityName() {
+    return currentLanguage == Language.hebrew
+        ? weatherData.cityNameHebrew
+        : weatherData.cityNameEnglish;
   }
 
   BoxDecoration cityCardDecoration() {
@@ -48,56 +47,6 @@ class _CityCardState extends State<CityCard> {
     return '${temp.toStringAsFixed(1)} °C';
   }
 
-  void _showCityDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Container(
-            width: MediaQuery.of(context).size.width * 0.75,
-            height: MediaQuery.of(context).size.height * 0.67,
-            color: Colors.cyan.shade500,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(widget.weatherData.cityName, style: cityNameStyle()),
-                    Text(tempToString(widget.weatherData.temperature), style: temperatureStyle()),
-                    widget.weatherData.weatherCondition.largeIcon,
-                    Text('Feels Like: ${tempToString(widget.weatherData.feelsLike)}', style: temperatureStyle()),
-                    Text('Min Temp: ${tempToString(widget.weatherData.tempMin)}', style: temperatureStyle()),
-                    Text('Max Temp: ${tempToString(widget.weatherData.tempMax)}', style: temperatureStyle()),
-                    Text('Humidity: ${widget.weatherData.humidity}%', style: temperatureStyle()),
-                    Text('Pressure: ${widget.weatherData.pressure} hPa', style: temperatureStyle()),
-                    Text('Wind Speed: ${widget.weatherData.windSpeed} m/s', style: temperatureStyle()),
-                    Text('Wind Direction: ${widget.weatherData.windDegree}°', style: temperatureStyle()),
-                    Text('Description: ${widget.weatherData.description}', style: temperatureStyle()),
-                    Text('Sunrise: ${formatTime(widget.weatherData.sunrise)}', style: temperatureStyle()),
-                    Text('Sunset: ${formatTime(widget.weatherData.sunset)}', style: temperatureStyle()),
-                    SizedBox(height: 10),
-                    ElevatedButton(
-                      onPressed: (){
-                        Navigator.pop(context);
-                        widget.onDelete(widget.weatherData.cityName);
-                      },
-                      child: Text('Remove city', style: temperatureStyle()),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
   String formatTime(int timestamp) {
     var date = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
     return '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
@@ -111,8 +60,8 @@ class _CityCardState extends State<CityCard> {
           context,
           MaterialPageRoute(
             builder: (context) => CityWeatherDetails(
-              weatherData: widget.weatherData,
-              onDelete: widget.onDelete,
+              weatherData: weatherData,
+              onDelete: onDelete, isHebrew: currentLanguage == Language.hebrew,
             ),
           ),
         );
@@ -129,11 +78,11 @@ class _CityCardState extends State<CityCard> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(widget.weatherData.cityName, style: cityNameStyle()),
-                    Text(tempToString(widget.weatherData.temperature), style: temperatureStyle()),
+                    Text(getCityName(), style: cityNameStyle()),
+                    Text(tempToString(weatherData.temperature), style: temperatureStyle()),
                   ],
                 ),
-                widget.weatherData.weatherCondition.icon,
+                weatherData.weatherCondition.icon,
               ],
             ),
           ),

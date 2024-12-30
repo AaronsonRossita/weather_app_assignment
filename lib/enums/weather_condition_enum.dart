@@ -157,3 +157,4 @@ WeatherCondition getWeatherCondition(int id) {
     throw ArgumentError("Unknown weather ID: $id");
   }
 }
+

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:weather_app_assignment/provider.dart';
 import 'package:weather_app_assignment/weather_model.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'city_card.dart';
+import 'enums/enums.dart';
 import 'loading_screen.dart';
 
 class MainPage extends StatefulWidget {
@@ -19,6 +20,7 @@ class _MainPageState extends State<MainPage> {
   TextEditingController cityController = TextEditingController();
 
   bool isLoading = true;
+  Language currentLanguage = Language.english;
 
   @override
   void initState() {
@@ -28,7 +30,7 @@ class _MainPageState extends State<MainPage> {
         cities = loadedCities;
         isLoading = true;
       });
-      initializeWeatherData();
+      loadLanguagePreference().then((_) => initializeWeatherData());
     });
   }
 
@@ -42,10 +44,23 @@ class _MainPageState extends State<MainPage> {
     await prefs.setStringList('cities', cities);
   }
 
+  Future<void> loadLanguagePreference() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      currentLanguage =
+          Language.values[prefs.getInt('language') ?? 0];
+    });
+  }
+
+  Future<void> saveLanguagePreference(Language language) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('language', language.index);
+  }
+
   Future<void> initializeWeatherData() async {
     isLoading = true;
-    final data =
-        await Future.wait(cities.map((city) => fetchWeatherForCity(city)));
+    final data = await Future.wait(cities.map(
+        (city) => fetchWeatherForCity(city, currentLanguage.languageCode)));
     setState(() {
       weatherData = data;
       isLoading = false;
@@ -57,9 +72,11 @@ class _MainPageState extends State<MainPage> {
     if (cityName.isNotEmpty) {
       if (!cities.contains(cityName)) {
         try {
-          final weather = await fetchWeatherForCity(cityName);
+          final weather =
+              await fetchWeatherForCity(cityName, currentLanguage.languageCode);
           setState(() {
-            cities.add(weather.cityName);
+            cities
+                .add(weather.cityNameEnglish);
             weatherData.add(weather);
             isLoading = false;
           });
@@ -69,7 +86,6 @@ class _MainPageState extends State<MainPage> {
           setState(() {
             isLoading = false;
           });
-
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text("City not found. Please check the name."),
@@ -93,9 +109,35 @@ class _MainPageState extends State<MainPage> {
   removeCity(String cityName) {
     setState(() {
       cities.remove(cityName);
-      weatherData.removeWhere((weather) => weather.cityName == cityName);
+      weatherData.removeWhere((weather) => weather.cityNameEnglish == cityName);
     });
+
     saveCities(cities);
+
+    initializeWeatherData();
+  }
+
+  Widget buildLanguageSwitch() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        Text(currentLanguage.label),
+        Switch(
+          value: currentLanguage == Language.hebrew,
+          onChanged: (value) {
+            setState(() {
+              currentLanguage = value ? Language.hebrew : Language.english;
+            });
+            saveLanguagePreference(currentLanguage);
+            initializeWeatherData();
+          },
+          activeColor: Colors.grey,
+          inactiveThumbColor: Colors.grey,
+          activeTrackColor: Colors.white,
+          inactiveTrackColor: Colors.white,
+        )
+      ],
+    );
   }
 
   Row buildAddCityRow() {
@@ -108,14 +150,19 @@ class _MainPageState extends State<MainPage> {
             ),
             controller: cityController,
             cursorColor: Colors.black,
-            decoration: const InputDecoration(
-              hintText: 'Enter city name',
-              focusedBorder: UnderlineInputBorder(
+            textDirection: currentLanguage == Language.hebrew
+                ? TextDirection.rtl
+                : TextDirection.ltr,
+            keyboardType: TextInputType.text,
+            decoration: InputDecoration(
+              hintText: currentLanguage.hintText,
+              focusedBorder: const UnderlineInputBorder(
                 borderSide: BorderSide(color: Colors.black),
               ),
             ),
             onSubmitted: (value) {
               addCity(value);
+              print('value: $value');
               cityController.clear();
             },
           ),
@@ -152,6 +199,7 @@ class _MainPageState extends State<MainPage> {
         itemCount: cities.length,
         itemBuilder: (context, index) {
           return CityCard(
+            currentLanguage: currentLanguage,
             weatherData: weatherData[index],
             onDelete: (cityName) {
               removeCity(cityName);
@@ -170,14 +218,27 @@ class _MainPageState extends State<MainPage> {
       );
     }
 
-    return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 50),
-        child: Column(
-          children: [
-            buildAddCityRow(),
-            buildCityList(),
+    return Directionality(
+      textDirection: currentLanguage == Language.hebrew
+          ? TextDirection.rtl
+          : TextDirection.ltr,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Weather App'),
+          centerTitle: true,
+          backgroundColor: Colors.deepPurple.shade200,
+          actions: [
+            buildLanguageSwitch(),
           ],
+        ),
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 50),
+          child: Column(
+            children: [
+              buildAddCityRow(),
+              buildCityList(),
+            ],
+          ),
         ),
       ),
     );
