@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:weather_app_assignment/weather_model.dart';
-import 'enum.dart'; // Ensure you have the WeatherCondition enum and WeatherModel here
+import 'enum.dart';
 
 class CityCard extends StatefulWidget {
   const CityCard(
       {super.key,
-        required this.weatherData, // Pass the entire WeatherModel
+        required this.weatherData,
         required this.onDelete});
 
-  final WeatherModel weatherData; // Use WeatherModel
+  final WeatherModel weatherData;
   final Function(String) onDelete;
 
   @override

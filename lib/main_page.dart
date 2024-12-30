@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:weather_app_assignment/provider.dart';
 import 'package:weather_app_assignment/weather_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'city_card.dart';
 import 'loading_screen.dart';
@@ -13,16 +14,32 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  List<String> cities = ['London', 'New York', 'Berlin'];
+  late List<String> cities;
   late List<WeatherModel> weatherData;
   TextEditingController cityController = TextEditingController();
 
   bool isLoading = true;
 
   @override
-  initState() {
+  void initState() {
     super.initState();
-    initializeWeatherData();
+    loadCities().then((loadedCities) {
+      setState(() {
+        cities = loadedCities;
+        isLoading = true;
+      });
+      initializeWeatherData();
+    });
+  }
+
+  Future<List<String>> loadCities() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getStringList('cities') ?? [];
+  }
+
+  Future<void> saveCities(List<String> cities) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('cities', cities);
   }
 
   Future<void> initializeWeatherData() async {
@@ -45,6 +62,7 @@ class _MainPageState extends State<MainPage> {
             weatherData.add(weather);
             isLoading = false;
           });
+          saveCities(cities);
           cityController.clear();
         } catch (error) {
           setState(() {
@@ -72,12 +90,11 @@ class _MainPageState extends State<MainPage> {
   }
 
   removeCity(String cityName) {
-    print('cities before removal: $cities');
     setState(() {
       cities.remove(cityName);
       weatherData.removeWhere((weather) => weather.cityName == cityName);
     });
-    print('cities after removal: $cities');
+    saveCities(cities);
   }
 
   Row buildAddCityRow() {
@@ -96,6 +113,10 @@ class _MainPageState extends State<MainPage> {
                 borderSide: BorderSide(color: Colors.black),
               ),
             ),
+            onSubmitted: (value) {
+              addCity(value);
+              cityController.clear();
+            },
           ),
         ),
         IconButton(
@@ -116,7 +137,13 @@ class _MainPageState extends State<MainPage> {
   Widget buildCityList() {
     if (weatherData.isEmpty) {
       return const Center(
-        child: CircularProgressIndicator(),
+        child: Text(
+          'Wow much empty :(',
+          style: TextStyle(
+            fontSize: 20,
+            color: Colors.black,
+          ),
+        ),
       );
     }
     return Expanded(
